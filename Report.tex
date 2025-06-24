@@ -280,7 +280,7 @@ La selezione dei modelli è stata orientata da due principi fondamentali: l’in
 
 \vspace{0.5em} \noindent\textbf{Classificazione (Supervised)} Per assegnare ciascun paese/anno ad una delle tre classi (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è stata adottata la seguente strategia:
 
-\begin{itemize} \item \texttt{Decision Tree Classifier} ha servito come baseline, ma ha sofferto di bassa generalizzazione su classi minoritarie; \item La potatura ha leggermente migliorato l’F1-weighted (da 0.48 a 0.52), ma con ridotta precision; \item \texttt{Random Forest Classifier} ha gestito meglio la complessità del dataset multivariato; \item Per affrontare lo sbilanciamento (70\% “stabile”), sono stati implementati: \begin{enumerate} \item \texttt{SMOTE} – sovracampionamento sintetico sul training set; 
+\begin{itemize} \item \texttt{Decision Tree Classifier} ha servito come baseline, ma ha sofferto di bassa generalizzazione su classi minoritarie; \item La potatura ha leggermente migliorato l’F1-weighted (da 0.48 a 0.52), ma con ridotta precision; \item \texttt{Random Forest Classifier} ha gestito meglio la complessità del dataset multivariato; \item Per affrontare lo sbilanciamento (70\% “stabile”), è stato implementato:  \item \texttt{SMOTE} – sovracampionamento sintetico sul training set; 
 
 La combinazione \texttt{RF + SMOTE} ha garantito i risultati migliori:
 
