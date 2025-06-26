@@ -9,7 +9,7 @@
 \usepackage{lmodern}
 \usepackage[table]{xcolor}
 \usepackage{colortbl}
-\usepackage{tikz} % opzionale, per definire sfumature
+\usepackage{tikz} 
 \usepackage{adjustbox}
 \usepackage[table]{xcolor}
 \usepackage{array}
@@ -20,7 +20,7 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{REPORT DATA ANALYTICS*\\}
+\title{REPORT DATA ANALYTICS\\}
 
 \author{\IEEEauthorblockN{\textsuperscript{st} Carmela Mandato, Giulia Di Biase, Luca Sacco, Simone Di Mario}}
 
@@ -55,7 +55,7 @@ In questo studio abbiamo sviluppato una pipeline completa di Data Analytics per 
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\linewidth]{images/Data_Flow_Diagram}
+  \includegraphics[width=0.8\linewidth]{Data_Flow_Diagram.png}  
   \caption{Diagramma di flusso dei dati}
   \label{fig:dataflow}
 \end{figure}
@@ -181,7 +181,7 @@ La corrispondente heatmap, mostrata in Figura~\ref{fig:correlation-heatmap}, evi
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{images/Matrix} % ad esempio 60% della larghezza della pagina
+\includegraphics[width=0.6\textwidth]{Matrix.png} % ad esempio 60% della larghezza della pagina
 \caption{Heatmap della matrice di correlazione tra i paesi}
 \label{fig:correlation-heatmap}
 \end{figure}
@@ -251,7 +251,7 @@ La selezione dei modelli è stata orientata da due principi fondamentali: l’in
 \end{itemize}
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{images/k-distance-DBSCAN}
+\includegraphics[width=0.5\textwidth]{k-distance-DBSCAN.png}
 \caption{k-distance plot (k=4) utilizzato per determinare il valore ottimale di $\varepsilon$ nel clustering DBSCAN. Il “gomito” suggerisce $\varepsilon \approx 3.5$.}
 \label{fig:dbscan-kdistance}
 \end{figure}
@@ -330,16 +330,17 @@ L’algoritmo \texttt{KMeans} ha individuato $k = 4$ cluster ben differenziati, 
   \item \textbf{Cluster 3}: paesi mediterranei (ES, PT, GR) con ripresa lenta dopo la crisi del 2008.
 \end{itemize}
 La mappa dei cluster riflette la suddivisione geografico-economica dell’Europa. L’algoritmo \texttt{DBSCAN}, invece, ha prodotto troppi outlier (oltre il 40\% dei punti), a causa della densità non uniforme dei dati normalizzati basati su \texttt{pct\_change\_3}. In questo contesto, \textbf{DBSCAN risulta poco adatto}, ma apre la strada all’adozione futura di tecniche come DTW o clustering gerarchico.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{images/Kmeans}
+\includegraphics[width=0.4\textwidth]{Kmeans.png}
 \caption{Visualizzazione dei cluster KMeans ($k=4$) nello spazio bidimensionale delle componenti principali (PCA). Ogni punto rappresenta un paese, colorato in base all’appartenenza al cluster.}
 \label{fig:kmeans-cluster-map}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{images/DBSCAN}
+\includegraphics[width=0.4\textwidth]{DBSCAN.png}
 \caption{Risultato del clustering DBSCAN visualizzato su PCA 2D. I paesi etichettati come outlier (cluster –1) evidenziano andamenti isolati o atipici.}
 \label{fig:dbscan-pca}
 \end{figure}
@@ -460,7 +461,7 @@ Il riempimento con la media su riga ha consentito una riduzione rapida dei valor
 \vspace{1em}\noindent\textbf{Clustering}
 
 Il metodo \texttt{KMeans} ha evidenziato la presenza di cluster interpretabili e stabili, con coefficiente di silhouette pari a circa 0.58: un valore soddisfacente considerata la natura eterogenea delle serie temporali dei paesi. L’algoritmo \texttt{DBSCAN}, al contrario, ha restituito un numero eccessivo di outlier a causa della scarsa densità uniforme nel dominio dei dati normalizzati. Per applicazioni future, si propone l’esplorazione di tecniche basate su \texttt{DTW}, su distanze di tipo coseno o correlazione, e su metodi di embedding dinamico.
-\newpage
+
 \vspace{1em}\noindent\textbf{Modelli di Regressione}
 
 Il modello \texttt{Random Forest Regressor}, opportunamente ottimizzato, ha restituito prestazioni soddisfacenti (RMSE = 4.2, MAE = 3.1, $R^2 = 0.65$). Ciò suggerisce che il 35\% circa della variabilità dei costi annuali rimane non spiegata, lasciando spazio per futuri miglioramenti, quali:
