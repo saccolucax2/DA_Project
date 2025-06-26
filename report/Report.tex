@@ -284,8 +284,11 @@ La selezione dei modelli è stata orientata da due principi fondamentali: l’in
 
 La combinazione \texttt{RF + SMOTE} ha garantito i risultati migliori:
 
-\begin{itemize} \item F1\_weighted ≃ 0.61, balanced accuracy ≃ 0.60 \item Miglior riconoscimento delle classi “aumento” e “diminuzione” \item Principali feature: \texttt{pct\_change\_3}, \texttt{rolling\_std\_3}, \texttt{OBS\_VALUE}, \texttt{grew\_last\_year} \end{itemize}
-
+\begin{itemize} 
+  \item F1\_weighted ≃ 0.61, balanced accuracy ≃ 0.60 
+  \item Miglior riconoscimento delle classi “aumento” e “diminuzione” 
+  \item Principali feature: \texttt{pct\_change\_3}, \texttt{rolling\_std\_3}, \texttt{OBS\_VALUE}, \texttt{grew\_last\_year} 
+\end{itemize}
 \vspace{0.8em} \noindent\textbf{Conclusione:} L’approccio a blocchi ha permesso di selezionare modelli robusti e coerenti con la natura del problema: interpretabili, adattabili a scenari economici europei, e in grado di captare segnali strutturali e dinamici nei dati geografico-temporali.
 
 
@@ -318,7 +321,7 @@ Queste osservazioni suggeriscono che la co-occorrenza di determinati segnali (fo
 Sebbene non si tratti di regole estratte formalmente con l’algoritmo Apriori, questa logica "condizionale" può essere interpretata come equivalente a una regola statistica frequente all’interno del sottogruppo minoritario.
 
 
-\section*{\Large \textbf{Analisi Comparativa e Conclusioni}}
+\section*{\Large \textbf{Analisi Comparativa}}
 
 Dall’analisi dei risultati emergono diverse osservazioni chiave relative alla qualità dei modelli implementati per le tre attività principali del progetto: clustering, regressione e classificazione.
 
