@@ -55,7 +55,7 @@ In questo studio abbiamo sviluppato una pipeline completa di Data Analytics per 
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\linewidth]{Data_Flow_Diagram.png}  
+  \includegraphics[width=0.8\linewidth]{images/Data_Flow_Diagram}
   \caption{Diagramma di flusso dei dati}
   \label{fig:dataflow}
 \end{figure}
@@ -181,7 +181,7 @@ La corrispondente heatmap, mostrata in Figura~\ref{fig:correlation-heatmap}, evi
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{matrix.png} % ad esempio 60% della larghezza della pagina
+\includegraphics[width=0.6\textwidth]{images/Matrix} % ad esempio 60% della larghezza della pagina
 \caption{Heatmap della matrice di correlazione tra i paesi}
 \label{fig:correlation-heatmap}
 \end{figure}
@@ -251,7 +251,7 @@ La selezione dei modelli è stata orientata da due principi fondamentali: l’in
 \end{itemize}
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{k-distance-DBSCAN.png}
+\includegraphics[width=0.5\textwidth]{images/k-distance-DBSCAN}
 \caption{k-distance plot (k=4) utilizzato per determinare il valore ottimale di $\varepsilon$ nel clustering DBSCAN. Il “gomito” suggerisce $\varepsilon \approx 3.5$.}
 \label{fig:dbscan-kdistance}
 \end{figure}
@@ -332,14 +332,14 @@ L’algoritmo \texttt{KMeans} ha individuato $k = 4$ cluster ben differenziati, 
 La mappa dei cluster riflette la suddivisione geografico-economica dell’Europa. L’algoritmo \texttt{DBSCAN}, invece, ha prodotto troppi outlier (oltre il 40\% dei punti), a causa della densità non uniforme dei dati normalizzati basati su \texttt{pct\_change\_3}. In questo contesto, \textbf{DBSCAN risulta poco adatto}, ma apre la strada all’adozione futura di tecniche come DTW o clustering gerarchico.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{Kmeans.png}
+\includegraphics[width=0.5\textwidth]{images/Kmeans}
 \caption{Visualizzazione dei cluster KMeans ($k=4$) nello spazio bidimensionale delle componenti principali (PCA). Ogni punto rappresenta un paese, colorato in base all’appartenenza al cluster.}
 \label{fig:kmeans-cluster-map}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{DBSCAN.png}
+\includegraphics[width=0.5\textwidth]{images/DBSCAN}
 \caption{Risultato del clustering DBSCAN visualizzato su PCA 2D. I paesi etichettati come outlier (cluster –1) evidenziano andamenti isolati o atipici.}
 \label{fig:dbscan-pca}
 \end{figure}
