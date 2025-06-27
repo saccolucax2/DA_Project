@@ -51,7 +51,7 @@ In questo studio abbiamo sviluppato una pipeline completa di Data Analytics per 
 \vspace{1em}
 
 {\large \textbf{4. Output e automazione}}\\
-{\small Salvataggio dei modelli in formato joblib, esportazione di risultati e metriche, generazione di grafici (.png/.html) e proposte di automazione con cron o GitHub Actions.}
+{\small Salvataggio dei modelli in formato csv, esportazione di risultati e metriche, generazione di grafici (.png/.html) e pipeline dati in Python, e proposte di automazione con Microsoft Task Scheduler.}
 
 \begin{figure}[h]
   \centering
@@ -171,21 +171,6 @@ Tali outlier sono stati successivamente oggetto di approfondimento qualitativo: 
 
 \begin{flushright} Listing 5–7: Analisi degli outlier per la colonna \texttt{OBS\_VALUE} su scala geografica \end{flushright}
 
-\vspace{1em} \noindent\textbf{Matrice di Correlazione}
-
-È stata calcolata la matrice di correlazione partendo dalla tabella pivot contenente i valori annuali di \texttt{OBS\_VALUE} per ciascun paese europeo. L’obiettivo era identificare pattern condivisi e relazioni lineari tra le serie temporali dei costi di produzione nei diversi stati membri.
-
-La matrice risultante mostra che alcuni paesi dell’area euro — come Austria, Germania e Belgio — condividono traiettorie simili nel tempo, con coefficienti di correlazione superiori a 0.9. Altri paesi, in particolare quelli con andamenti più volatili o soggetti a shock economici recenti (es. Bulgaria o Estonia), presentano correlazioni più deboli rispetto al blocco centrale. In generale, i paesi dell’Europa occidentale mostrano una coerenza maggiore, mentre quelli orientali presentano maggiore eterogeneità.
-
-La corrispondente heatmap, mostrata in Figura~\ref{fig:correlation-heatmap}, evidenzia visivamente tali relazioni: i colori più intensi rappresentano correlazioni forti (positive o negative), mentre le aree neutre indicano assenza di relazione. Tale rappresentazione è stata fondamentale per supportare la costruzione dei cluster e per interpretare strutture latenti nei dati.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{Matrix.png} % ad esempio 60% della larghezza della pagina
-\caption{Heatmap della matrice di correlazione tra i paesi}
-\label{fig:correlation-heatmap}
-\end{figure}
-
 \vspace{1em} \noindent\textbf{Ingegnerizzazione delle Features}
 
 L’ingegnerizzazione delle features è un passaggio fondamentale nell’analisi dei dati e nella costruzione di modelli di machine learning, poiché consente di trasformare i dati grezzi in informazioni più rappresentative e utili per il modello. In questo progetto, l’ingegnerizzazione è stata applicata sia a variabili numeriche già presenti nel dataset, sia attraverso la creazione di nuove variabili derivate, in particolare su base temporale.
@@ -194,6 +179,7 @@ L’ingegnerizzazione delle features è un passaggio fondamentale nell’analisi
 
 Nel contesto dell’analisi dei costi di produzione residenziale nei paesi europei, le trasformazioni sono state eseguite per ciascuna coppia \texttt{(geo, anno)}, ordinando i dati cronologicamente. L’obiettivo era costruire feature capaci di cogliere trend, variazioni e anomalie nei dati. I principali passaggi sono stati:
 
+{\raggedright
 \begin{itemize}
     \item \textbf{Target di regressione} (\texttt{target\_cost}): definito come il valore \texttt{OBS\_VALUE} dell’anno successivo, calcolato tramite \texttt{groupby('geo')['OBS\_VALUE'].shift(-1)}.
     
@@ -202,11 +188,11 @@ Nel contesto dell’analisi dei costi di produzione residenziale nei paesi europ
     \texttt{var\_perc} = 100 \cdot \frac{\texttt{OBS\_VALUE} - \texttt{prev\_cost}}{\texttt{prev\_cost}}
     \]
     dove \texttt{prev\_cost} è il valore dell’anno precedente. I valori infiniti e i NaN sono stati sostituiti con zero per evitare distorsioni nei modelli.
-    
+   
     \item \textbf{Etichetta di variazione} (\texttt{label\_variation}): categorizzazione del cambiamento secondo tre classi:
     \begin{itemize}
-        \item \texttt{"aumento"} se \texttt{var\_perc > 20\%};
-        \item \texttt{"diminuzione"} se \texttt{var\_perc < -20\%};
+        \item \texttt{"aumento"} se \texttt{var\_perc > 15\%};
+        \item \texttt{"diminuzione"} se \texttt{var\_perc < -15\%};
         \item \texttt{"stabile"} altrimenti.
     \end{itemize}
     
@@ -221,6 +207,7 @@ Nel contesto dell’analisi dei costi di produzione residenziale nei paesi europ
     
     \item \textbf{Slope locale} (\texttt{slope\_3}): pendenza calcolata tramite regressione lineare sui valori degli ultimi 3 anni, per rilevare accelerazioni o rallentamenti nella dinamica dei costi. Il coefficiente angolare viene estratto usando \texttt{np.polyfit}.
 \end{itemize}
+} 
 
 \vspace{1em}\noindent\textbf{Obiettivo delle Trasformazioni}
 
@@ -235,9 +222,25 @@ Queste trasformazioni hanno lo scopo di:
 
 Al termine della fase di feature engineering, ogni riga del dataset rappresenta un anno per un determinato paese e contiene tutte le variabili derivate necessarie per le fasi successive di modellazione.
 
+\vspace{1em} \noindent\textbf{Matrice di Correlazione}
+
+Dopo aver effettuato la fase di feature engineering abbiamo calcolato la matrice di correlazione per scegliere le feature da ultilizzare per training e testing. La matrice di correlazione è una tabella che indica quanto ogni feature è "legata" o "simile" alle altre. Se due feature hanno una correlazione alta (vicina a 1), significa che vanno quasi sempre nella stessa direzione.
+Abbiamo scelto solo le feature che non sono troppo correlate tra loro (abbiamo messo una soglia dell'80, cioè 0.8). Questo significa che le feature che abbiamo scelto alla fine sono il più possibile "indipendenti" l'una dall'altra.
+
+Le feature che abbiamo selezionato per i nostri modelli finali, perché considerate più utili e meno ridondanti, sono: \texttt{OBS\_VALUE} (il costo attuale), \texttt{pct\_change\_3} (la variazione del 3 anni), \texttt{rolling\_std\_3} (la volatilità degli ultimi 3 anni) e \texttt{grew\_last\_year} (se è cresciuto l'anno scorso).
+Questo processo di selezione è fondamentale perché ci permette di costruire modelli più stabili e affidabili, che non si confondono con informazioni doppie o ridondanti e riescono a imparare meglio dalle differenze tra le feature.
+La corrispondente heatmap, mostrata in Figura~\ref{fig:correlation-heatmap}, evidenzia visivamente tali relazioni: i colori più intensi rappresentano correlazioni forti (positive o negative), mentre le aree neutre indicano assenza di relazione.
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.4cm}
+\includegraphics[width=0.6\textwidth]{Matrix.png} 
+\caption{Heatmap della matrice di correlazione tra i paesi}
+\label{fig:correlation-heatmap}
+\end{figure}
 
  \section*{\Large \textbf{Bilanciamento del Dataset e Analisi delle Dinamiche Latenti}}
-Uno degli aspetti più delicati nella classificazione delle dinamiche economiche dei paesi UE consiste nello sbilanciamento tra le classi. La distribuzione osservata delle etichette (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è fortemente polarizzata: circa il 70\% degli esempi appartiene alla classe \texttt{stabile}. Questo disequilibrio compromette l'apprendimento dei modelli tradizionali, portando a bias nella classificazione delle classi minoritarie.
+Uno degli aspetti più delicati nella classificazione delle dinamiche economiche dei paesi UE consiste nello sbilanciamento tra le classi. La distribuzione osservata delle etichette (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è abbastanza polarizzata: circa il 40\% degli esempi appartiene alla classe \texttt{stabile}. Questo disequilibrio compromette l'apprendimento dei modelli tradizionali, portando a bias nella classificazione delle classi minoritarie.
 
 \section*{\Large \textbf{Motivazione della Scelta dei Modelli}}
 La selezione dei modelli è stata orientata da due principi fondamentali: l’interpretabilità dei risultati e la capacità di generalizzazione su serie temporali e geografiche. In particolare, il framework si è articolato in tre blocchi: \textbf{clustering}, \textbf{regressione} e \textbf{classificazione}.
@@ -269,7 +272,8 @@ La selezione dei modelli è stata orientata da due principi fondamentali: l’in
 
 \vspace{0.5em} \noindent\textbf{Classificazione (Supervised)} Per assegnare ciascun paese/anno ad una delle tre classi (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è stata adottata la seguente strategia:
 
-\begin{itemize} \item \texttt{Decision Tree Classifier} ha servito come baseline, ma ha sofferto di bassa generalizzazione su classi minoritarie; \item La potatura ha leggermente migliorato l’F1-weighted (da 0.48 a 0.52), ma con ridotta precision; \item \texttt{Random Forest Classifier} ha gestito meglio la complessità del dataset multivariato; \item Per affrontare lo sbilanciamento (70\% “stabile”), è stato implementato:  \item \texttt{SMOTE} – sovracampionamento sintetico sul training set; 
+\begin{itemize} \item \texttt{Decision Tree Classifier} ha servito come baseline, ma ha sofferto di bassa generalizzazione su classi minoritarie; \item La potatura ha leggermente migliorato l’F1-weighted (da 0.48 a 0.52), ma con ridotta precision; \item \texttt{Random Forest Classifier} ha gestito meglio la complessità del dataset multivariato; \item Per affrontare il leggero sbilanciamento delle classi, è stato implementato: \texttt{SMOTE} (sovracampionamento sintetico) sul training set; 
+\end{itemize}
 
 La combinazione \texttt{RF + SMOTE} ha garantito i risultati migliori:
 
@@ -280,7 +284,6 @@ La combinazione \texttt{RF + SMOTE} ha garantito i risultati migliori:
     \item Principali feature: \texttt{pct\_change\_3}, \texttt{rolling\_std\_3}, \texttt{OBS\_VALUE}, \texttt{grew\_last\_year} 
 \end{itemize}
 }
-\end{itemize}
 
 \vspace{0.5em} \noindent\textbf{Conclusione:} L’approccio a blocchi ha permesso di selezionare modelli robusti e coerenti con la natura del problema: interpretabili, adattabili a scenari economici europei, e in grado di captare segnali strutturali e dinamici nei dati geografico-temporali.
 
@@ -311,7 +314,7 @@ Queste osservazioni suggeriscono che la co-occorrenza di determinati segnali (fo
 
 \noindent\textbf{Esempio osservato:}
 
-{\centering \textit{Se} (\texttt{pct\_change\_3} > 15\%) \textbf{e} (\texttt{rolling\_std\_3} > 5) $\Rightarrow$ \texttt{classe} = “aumento” con elevata probabilità.}
+{\centering \textit{Se} (\texttt{pct\_change\_3} \geq 15\%) \textbf{ e } (\texttt{rolling\_std\_3} \geq 5) $\Rightarrow$ \texttt{classe} = “aumento” con elevata probabilità.}
 
 Sebbene non si tratti di regole estratte formalmente con l’algoritmo Apriori, questa logica "condizionale" può essere interpretata come equivalente a una regola statistica frequente all’interno del sottogruppo minoritario.
 
@@ -331,16 +334,21 @@ L’algoritmo \texttt{KMeans} ha individuato $k = 4$ cluster ben differenziati, 
 \end{itemize}
 La mappa dei cluster riflette la suddivisione geografico-economica dell’Europa. L’algoritmo \texttt{DBSCAN}, invece, ha prodotto troppi outlier (oltre il 40\% dei punti), a causa della densità non uniforme dei dati normalizzati basati su \texttt{pct\_change\_3}. In questo contesto, \textbf{DBSCAN risulta poco adatto}, ma apre la strada all’adozione futura di tecniche come DTW o clustering gerarchico.
 
-\begin{figure}[H]
+\begin{figure}
 \centering
-\includegraphics[width=0.4\textwidth]{Kmeans.png}
+\includegraphics[width=0.5\textwidth]{Kmeans.png}
+\end{figure}
+
+\newpage
+
+\begin{figure}
 \caption{Visualizzazione dei cluster KMeans ($k=4$) nello spazio bidimensionale delle componenti principali (PCA). Ogni punto rappresenta un paese, colorato in base all’appartenenza al cluster.}
 \label{fig:kmeans-cluster-map}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth]{DBSCAN.png}
+\includegraphics[width=0.5\textwidth]{DBSCAN.png}
 \caption{Risultato del clustering DBSCAN visualizzato su PCA 2D. I paesi etichettati come outlier (cluster –1) evidenziano andamenti isolati o atipici.}
 \label{fig:dbscan-pca}
 \end{figure}
@@ -359,6 +367,7 @@ Al contrario, la \texttt{Random Forest Regressor} ottimizzata ha raggiunto:
 
 Con una varianza spiegata pari al 65\%, l’\textbf{RF\_TUNED rappresenta il miglior compromesso} tra accuratezza e generalizzazione. Confronti puntuali (es. caso Italia 2000–2023) mostrano una buona aderenza tra predetto e reale, ad eccezione degli shock economici come 2008–2009.
 
+\vfill\break
 \vspace{1em}\noindent\textbf{3. Classificazione}
 
 Il modello \texttt{Random Forest Classifier + SMOTE} si è rivelato il più efficace, con:
@@ -370,7 +379,7 @@ Il modello \texttt{Random Forest Classifier + SMOTE} si è rivelato il più effi
 
 Questo setup ha migliorato il riconoscimento delle classi minoritarie (“aumento”, “diminuzione”), mantenendo buoni livelli di recall su tutte e tre le categorie.
 
-Altri approcci come \texttt{class\_weight} e potatura dell’albero hanno fornito miglioramenti parziali. Le feature più rilevanti sono risultate:
+Altri approcci come \texttt{class\_weight} (non implementato nel jupiter) e potatura dell’albero hanno fornito miglioramenti parziali. Le feature più rilevanti sono risultate:
 
 \begin{enumerate}
   \item \texttt{pct\_change\_3} (0.35),
@@ -468,9 +477,10 @@ Il modello \texttt{Random Forest Regressor}, opportunamente ottimizzato, ha rest
 
 \begin{itemize} \item integrazione di indicatori macroeconomici esterni (PIL, inflazione, prezzi materiali); \item introduzione di modelli multivariati (es. \texttt{XGBoost}, \texttt{LightGBM}, \texttt{Prophet}) per cogliere dinamiche non lineari. \end{itemize}
 
+\newpage
 \vspace{1em}\noindent\textbf{Modelli di Classificazione}
 
-La combinazione \texttt{Random Forest + SMOTE} si è dimostrata particolarmente efficace nella gestione dello sbilanciamento tra classi di variazione ("aumento"/"diminuzione"), ottenendo F1-score pari a circa 0.61. Tuttavia, la soglia predefinita di $\pm$20\% è arbitraria e la sua modifica a valori come $\pm$10\% o $\pm$15\% potrebbe alterare sensibilmente le performance del modello e la distribuzione delle etichette.
+La combinazione \texttt{Random Forest + SMOTE} si è dimostrata particolarmente efficace nella gestione dello sbilanciamento tra classi di variazione ("aumento"/"diminuzione"), ottenendo F1-score pari a circa 0.61. Tuttavia, la soglia predefinita di $\pm$15\% è arbitraria e la sua modifica a valori come $\pm$10\% o $\pm$20\% potrebbe alterare sensibilmente le performance del modello e la distribuzione delle etichette.
 
 \vspace{1em}\noindent\textbf{Importanza delle Feature}
 
@@ -490,7 +500,7 @@ Dal punto di vista predittivo, il modello \texttt{Random Forest Regressor} ottim
 
 Per quanto riguarda la classificazione, l’integrazione della \texttt{Random Forest} con tecniche di bilanciamento come \texttt{SMOTE} ha permesso di gestire efficacemente lo sbilanciamento tra le classi, raggiungendo valori di F1-weighted pari a 0.61 e un'accuratezza bilanciata del 60\%. Tra le feature più influenti si segnalano \texttt{pct\_change\_3} e \texttt{rolling\_std\_3}, entrambe derivate da trasformazioni temporali locali.
 
-Inoltre, la progettazione di una pipeline modulare — che copre l’intero ciclo di vita analitico (dall’acquisizione del dataset alla modellazione, dal feature engineering all’esportazione) — consente una schedulazione automatica degli aggiornamenti grazie all’uso combinato di timestamp, GitHub Actions e versioning dei dataset, garantendo riproducibilità e tracciabilità operativa.
+Inoltre, la progettazione di una pipeline modulare — che copre l’intero ciclo di vita analitico (dall’acquisizione del dataset alla modellazione, dal feature engineering all’esportazione) — consente una schedulazione automatica degli aggiornamenti grazie all’uso combinato di Microsoft Task Scheduler e versioning dei dataset, garantendo riproducibilità e tracciabilità operativa.
 
 \vspace{0.5em}
 \noindent\textbf{Prospettive Future:}
