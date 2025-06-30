@@ -51,7 +51,7 @@ In questo studio abbiamo sviluppato una pipeline completa di Data Analytics per 
 \vspace{1em}
 
 {\large \textbf{4. Output e automazione}}\\
-{\small Salvataggio dei modelli in formato csv, esportazione di risultati e metriche, generazione di grafici (.png/.html) e pipeline dati in Python, e proposte di automazione con Microsoft Task Scheduler.}
+{\small Salvataggio dei modelli in formato csv, esportazione di risultati e metriche, generazione di grafici (.png) e pipeline dati in Python, e proposte di automazione con Microsoft Task Scheduler.}
 
 \begin{figure}[h]
   \centering
@@ -100,10 +100,9 @@ Campi come \texttt{geo}, \texttt{indic\_bt}, \texttt{cpa2\_1} e \texttt{unit} so
 \vspace{1em}\noindent\textbf{Colonne non informative}
 
 Alcuni campi, come \texttt{OBS\_FLAG} e \texttt{CONF\_STATUS}, si sono rivelati privi di informazioni utili o contenenti prevalentemente valori nulli, e sono stati pertanto esclusi dal processo analitico.
-
-\vspace{1em}
 Questa fase iniziale è stata fondamentale per definire la qualità del dataset, prepararlo al feature engineering e garantire la coerenza strutturale dei dati su scala temporale e geografica.
 
+\vfill\break
 \vspace{1em} \noindent\textbf{Analisi Esplorativa e Preprocessing}
 
 Nel corso di questa fase sono state eseguite diverse operazioni preliminari sul dataset Eurostat al fine di verificarne la qualità, la coerenza strutturale e l’idoneità all’analisi. In primo luogo, è stato effettuato un controllo sull’eventuale presenza di righe duplicate e di valori mancanti, risultando un dataset già parzialmente pulito ma comunque sottoposto a filtraggio per le sole osservazioni rilevanti. Sono state mantenute esclusivamente le righe con indicatore \texttt{COST} e unità di misura \texttt{PCH\_SM}, coerenti con gli obiettivi dell’analisi. Inoltre, sono stati rimossi eventuali valori negativi in \texttt{OBS\_VALUE}, che non risultano plausibili nel contesto delle variazioni percentuali dei costi di produzione.
@@ -149,7 +148,7 @@ Sulla base di questi valori, sono stati calcolati i limiti per l'identificazione
 \end{itemize}
 
 Tutti i valori al di fuori di questo intervallo sono stati considerati outlier. L’analisi ha permesso di individuare osservazioni anomale, per lo più concentrate in anni recenti (post-2020) in alcuni paesi come Bulgaria, Estonia e Repubblica Ceca, dove la crescita dei costi di produzione ha subito incrementi anomali in seguito a shock economici e inflattivi.
-
+\newpage
 \vspace{1em}\noindent\textbf{Esempio di output per la variabile \texttt{OBS\_VALUE}:}
 \begin{itemize}
   \item Colonna: \texttt{OBS\_VALUE}
@@ -163,11 +162,13 @@ Tali outlier sono stati successivamente oggetto di approfondimento qualitativo: 
 
 \vspace{1em} \noindent\textbf{Esempi di analisi outlier per \texttt{OBS\_VALUE} suddivisi per paese}
 
-\vspace{1em}\noindent \textbf{Paese: Bulgaria (BG)} \\ Limite inferiore: $-2.0$ \\ Limite superiore: $18.6$ \\ Numero di outlier: 2 \\ Osservazioni: valori anomali rilevati negli anni 2022–2023, con picchi oltre il 50\% dovuti a shock inflattivi post-pandemici.
+\begin{itemize}
+\item\vspace{1em}\noindent \textbf{Paese: Bulgaria (BG)} \\ Limite inferiore: $-2.0$ \\ Limite superiore: $18.6$ \\ Numero di outlier: 2 \\ Osservazioni: valori anomali rilevati negli anni 2022–2023, con picchi oltre il 50\% dovuti a shock inflattivi post-pandemici.
 
-\vspace{1em} \noindent \textbf{Paese: Estonia (EE)} \\ Limite inferiore: $-1.5$ \\ Limite superiore: $15.2$ \\ Numero di outlier: 1 \\ Osservazioni: incremento superiore al 18\% nel 2022, confermato dai dati ufficiali sul mercato edilizio baltico.
+\item\vspace{1em} \noindent \textbf{Paese: Estonia (EE)} \\ Limite inferiore: $-1.5$ \\ Limite superiore: $15.2$ \\ Numero di outlier: 1 \\ Osservazioni: incremento superiore al 18\% nel 2022, confermato dai dati ufficiali sul mercato edilizio baltico.
 
-\vspace{1em} \noindent \textbf{Paese: Repubblica Ceca (CZ)} \\ Limite inferiore: $-2.1$ \\ Limite superiore: $16.5$ \\ Numero di outlier: 1 \\ Osservazioni: valore fuori soglia nel 2022, relativo all’impennata dei costi delle materie prime.
+\item\vspace{1em} \noindent \textbf{Paese: Repubblica Ceca (CZ)} \\ Limite inferiore: $-2.1$ \\ Limite superiore: $16.5$ \\ Numero di outlier: 1 \\ Osservazioni: valore fuori soglia nel 2022, relativo all’impennata dei costi delle materie prime.
+\end{itemize}
 
 \begin{flushright} Listing 5–7: Analisi degli outlier per la colonna \texttt{OBS\_VALUE} su scala geografica \end{flushright}
 
@@ -234,52 +235,56 @@ La corrispondente heatmap, mostrata in Figura~\ref{fig:correlation-heatmap}, evi
 \begin{figure}[H]
 \centering
 \hspace*{-1.4cm}
-\includegraphics[width=0.6\textwidth]{Matrix.png} 
+\includegraphics[width=0.6\textwidth]{Correlation_Matrix.png} 
 \caption{Heatmap della matrice di correlazione tra i paesi}
 \label{fig:correlation-heatmap}
 \end{figure}
 
- \section*{\Large \textbf{Bilanciamento del Dataset e Analisi delle Dinamiche Latenti}}
+\vspace{0.5em} \noindent\textbf{Bilanciamento del Dataset e Analisi delle Dinamiche Latenti}}
+
 Uno degli aspetti più delicati nella classificazione delle dinamiche economiche dei paesi UE consiste nello sbilanciamento tra le classi. La distribuzione osservata delle etichette (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è abbastanza polarizzata: circa il 40\% degli esempi appartiene alla classe \texttt{stabile}. Questo disequilibrio compromette l'apprendimento dei modelli tradizionali, portando a bias nella classificazione delle classi minoritarie.
 
 \section*{\Large \textbf{Motivazione della Scelta dei Modelli}}
 La selezione dei modelli è stata orientata da due principi fondamentali: l’interpretabilità dei risultati e la capacità di generalizzazione su serie temporali e geografiche. In particolare, il framework si è articolato in tre blocchi: \textbf{clustering}, \textbf{regressione} e \textbf{classificazione}.
 
-\vspace{0.5em} \noindent\textbf{Clustering (Unsupervised)} L’analisi esplorativa non supervisionata ha previsto l’uso combinato di \texttt{PCA} e \texttt{KMeans}, al fine di ridurre la dimensionalità e identificare gruppi omogenei di paesi:
+\vspace{0.5em} \noindent\textbf{Clustering (Unsupervised):} 
+
+L’analisi esplorativa non supervisionata ha previsto l’uso combinato di \texttt{PCA} e \texttt{KMeans}, al fine di ridurre la dimensionalità e identificare gruppi omogenei di paesi:
 
 \begin{itemize} 
 \item \texttt{PCA} con $n = 3$ componenti ha catturato oltre il 75\% della varianza complessiva; 
-\item \texttt{KMeans} ha restituito $k = 4$ cluster con silhouette ≃ 0.58, suggerendo una separazione soddisfacente tra gruppi regionali; 
+\item \texttt{KMeans} ha restituito $k = 2$ cluster con silhouette ≃ 0.53, suggerendo una divisione netta tra i macro-gruppi regionali, dovuta al fatto che la rimozione degli outliers ha semplificato i cluster, ma li ha resi meno separati; 
 \item L’alternativa \texttt{DBSCAN}, pur pensata per individuare outlier e gruppi densi, ha generato troppi label -1 e cluster scarsamente significativi, risultando meno efficace per i dati normalizzati. 
 \end{itemize}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\textwidth]{k-distance-DBSCAN.png}
-\caption{k-distance plot (k=4) utilizzato per determinare il valore ottimale di $\varepsilon$ nel clustering DBSCAN. Il “gomito” suggerisce $\varepsilon \approx 3.5$.}
+\caption{k-distance plot (k=2) utilizzato per determinare il valore ottimale di $\varepsilon$ nel clustering DBSCAN. Il “gomito” suggerisce $\varepsilon \approx 8$.}
 \label{fig:dbscan-kdistance}
 \end{figure}
 
-\vspace{0.5em} \noindent\textbf{Regressione (Supervised)} Sono stati testati modelli interpretabili e robusti:
+\vspace{0.5em} \noindent\textbf{Regressione (Supervised):} 
+
+Sono stati testati modelli interpretabili e robusti:
 
 \begin{itemize} 
-\item \texttt{Decision Tree Regressor} ha offerto una baseline semplice e veloce, ma con rischio di overfitting e R\textsuperscript{2} ≃ 0.42; 
-\item La versione \texttt{potata} ha mostrato un leggero miglioramento nel RMSE (5.8), pur restando insoddisfacente; 
-\item \texttt{Random Forest Regressor}, con tuning dei parametri ($n = 100$, max depth = 5), ha restituito: 
-\begin{itemize} 
-\item RMSE ≃ 4.2; MAE ≃ 3.1; R\textsuperscript{2} ≃ 0.65 
-\end{itemize} garantendo un equilibrio solido tra accuratezza e robustezza, e diventando il modello regressivo finale. 
+\item \texttt{Decision Tree Regressor} ha offerto una baseline semplice e veloce, ma con rischio di overfitting e R\textsuperscript{2} ≃ -0.46; 
+\item La versione \texttt{potata} ha mostrato un leggero miglioramento nel RMSE (9.5 $\Rightarrow$ 5.9), pur restando insoddisfacente; 
+\item \texttt{Random Forest Regressor}, con tuning dei parametri ($n = 100$, max depth = 5), ha restituito: RMSE = 2.5, MAE = 1.5, R\textsuperscript{2} ≃ 0.07; garantendo un equilibrio solido tra accuratezza e robustezza, e diventando il modello regressivo finale. 
 \end{itemize}
 
-\vspace{0.5em} \noindent\textbf{Classificazione (Supervised)} Per assegnare ciascun paese/anno ad una delle tre classi (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è stata adottata la seguente strategia:
+\vspace{0.5em} \noindent\textbf{Classificazione (Supervised):} 
 
-\begin{itemize} \item \texttt{Decision Tree Classifier} ha servito come baseline, ma ha sofferto di bassa generalizzazione su classi minoritarie; \item La potatura ha leggermente migliorato l’F1-weighted (da 0.48 a 0.52), ma con ridotta precision; \item \texttt{Random Forest Classifier} ha gestito meglio la complessità del dataset multivariato; \item Per affrontare il leggero sbilanciamento delle classi, è stato implementato: \texttt{SMOTE} (sovracampionamento sintetico) sul training set; 
+Per assegnare ciascun paese/anno ad una delle tre classi (\texttt{aumento}, \texttt{stabile}, \texttt{diminuzione}) è stata adottata la seguente strategia:
+
+\begin{itemize} \item \texttt{Decision Tree Classifier} ha servito come baseline, ma ha sofferto di bassa generalizzazione su classi minoritarie; \item La potatura ha leggermente migliorato l’F1-weighted (da 0.71 a 0.78), ma con ridotta precision; \item \texttt{Random Forest Classifier} ha gestito meglio la complessità del dataset multivariato; \item Per affrontare il leggero sbilanciamento delle classi, è stato implementato: \texttt{SMOTE} (sovracampionamento sintetico) sul training set; 
 \end{itemize}
 
 La combinazione \texttt{RF + SMOTE} ha garantito i risultati migliori:
 
 {\raggedright
 \begin{itemize} 
-    \item F1\_weighted ≃ 0.61, balanced accuracy ≃ 0.60 
+    \item F1\_weighted e balanced accuracy ≃ 0.74 
     \item Miglior riconoscimento delle classi “aumento” e “diminuzione” 
     \item Principali feature: \texttt{pct\_change\_3}, \texttt{rolling\_std\_3}, \texttt{OBS\_VALUE}, \texttt{grew\_last\_year} 
 \end{itemize}
@@ -293,12 +298,13 @@ Per ridurre il bias verso la classe dominante, è stato adottato il metodo \text
 
 \begin{enumerate} \item Individuazione delle classi minoritarie: \texttt{aumento} e \texttt{diminuzione}; \item Interpolazione sintetica tra osservazioni reali appartenenti a tali classi; \item Generazione di nuovi esempi realistici, mantenendo coerenza statistica e temporale; \item Costruzione di un \textbf{dataset bilanciato} capace di favorire un apprendimento equo. \end{enumerate}
 
-Dopo l’applicazione di SMOTE, il modello \texttt{Random Forest Classifier} ha mostrato un incremento delle performance, in particolare sul \textbf{recall} delle classi "aumento" e "diminuzione", con F1-weighted = 0.61 e balanced accuracy = 0.60.
+Dopo l’applicazione di SMOTE, il modello \texttt{Random Forest Classifier} ha mostrato un incremento delle performance, in particolare sul \textbf{recall} delle classi "aumento" e "diminuzione", con F1-weighted e balanced accuracy = 0.74.
 
 \vspace{1em}\noindent\textbf{Identificazione di Pattern Ricorrenti nei Paesi con Andamenti Volatili}
 
 In parallelo, è stata condotta un’analisi qualitativa degli andamenti economici estremi. Sono stati isolati i paesi che, secondo i cluster e i valori anomali rilevati, hanno mostrato una frequente associazione tra:
 
+{\raggedright
 \begin{itemize} 
 \item variazioni anomale su 3 anni consecutivi (\texttt{pct\_change\_3} elevato), 
 \item elevata volatilità interannuale (\texttt{rolling\_std\_3}), 
@@ -310,6 +316,7 @@ L’analisi ha evidenziato che i paesi più frequentemente coinvolti in tali din
 item \textbf{Grecia (GR)} e \textbf{Portogallo (PT)} — in fasi di recupero post-crisi 2008; 
 \item \textbf{Polonia (PL)} e \textbf{Ungheria (HU)} — nei periodi di crescita accelerata post-adesione UE. 
 \end{itemize}
+}
 Queste osservazioni suggeriscono che la co-occorrenza di determinati segnali (forte variazione triennale + alta instabilità) è un indicatore utile per classificare correttamente la transizione economica del paese, funzione analoga a una “regola di associazione” nel contesto economico.
 
 \noindent\textbf{Esempio osservato:}
@@ -324,7 +331,7 @@ Dall’analisi dei risultati emergono diverse osservazioni chiave relative alla 
 
 \vspace{1em}\noindent\textbf{1. Clustering}
 
-L’algoritmo \texttt{KMeans} ha individuato $k = 4$ cluster ben differenziati, con un coefficiente di silhouette pari a 0.58. I cluster emersi riflettono traiettorie economiche coerenti:
+Analizziamo prima la situazione in cui non è stata svolta l'Outliers Elimination. L’algoritmo \texttt{KMeans} ha individuato $k = 4$ cluster ben differenziati, con un coefficiente di silhouette pari a 0.58. I cluster emersi riflettono traiettorie economiche coerenti:
 
 \begin{itemize}
   \item \textbf{Cluster 0}: paesi nordici e baltici (FI, SE, EE, LV) caratterizzati da crescita moderata e bassa volatilità;
@@ -332,17 +339,28 @@ L’algoritmo \texttt{KMeans} ha individuato $k = 4$ cluster ben differenziati, 
   \item \textbf{Cluster 2}: economie di nuova adesione (PL, CZ, SK, HU) con picchi di crescita post-2000;
   \item \textbf{Cluster 3}: paesi mediterranei (ES, PT, GR) con ripresa lenta dopo la crisi del 2008.
 \end{itemize}
-La mappa dei cluster riflette la suddivisione geografico-economica dell’Europa. L’algoritmo \texttt{DBSCAN}, invece, ha prodotto troppi outlier (oltre il 40\% dei punti), a causa della densità non uniforme dei dati normalizzati basati su \texttt{pct\_change\_3}. In questo contesto, \textbf{DBSCAN risulta poco adatto}, ma apre la strada all’adozione futura di tecniche come DTW o clustering gerarchico.
+La mappa dei cluster riflette la suddivisione geografico-economica dell’Europa. L’algoritmo \texttt{DBSCAN}, invece, ha prodotto troppi outlier (oltre il 40\% dei punti), a causa della densità non uniforme dei dati normalizzati basati su \texttt{pct\_change\_3}. 
 
-\begin{figure}
+Dopo l'Outliers Elimination, l’algoritmo ha invece individuato solamente $k = 2$ cluster, con un coefficiente di silhouette pari a 0.53. Notiamo come gli outlier aggiungevano artificialmente distanza tra i cluster. Senza di loro, i cluster sono più uniformi ma anche più vicini. Nonostante ciò, anche qui, i cluster emersi riflettono traiettorie economiche coerenti:
+
+\begin{itemize}
+  \item \textbf{Cluster 0}: grandi economie (Europa Centrale) con profili stabili;
+  \item \textbf{Cluster 1}: economie di nuova adesione (Est e Nord Europa) con picchi di crescita post-2000;
+\end{itemize}
+
+In entrambi i casi, \textbf{DBSCAN risulta poco adatto}, ma apre la strada all’adozione futura di tecniche come DTW o clustering gerarchico.
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.5\textwidth]{Kmeans.png}
+\caption{Visualizzazione dei cluster KMeans ($k=4$) nello spazio bidimensionale delle componenti principali (PCA). Ogni punto rappresenta un paese, colorato in base all’appartenenza al cluster.}
+\label{fig:kmeans-cluster-map}
 \end{figure}
 
-\newpage
-
-\begin{figure}
-\caption{Visualizzazione dei cluster KMeans ($k=4$) nello spazio bidimensionale delle componenti principali (PCA). Ogni punto rappresenta un paese, colorato in base all’appartenenza al cluster.}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{Kmeans(OE).png}
+\caption{Visualizzazione dei cluster KMeans ($k=2$) nello spazio bidimensionale delle componenti principali (PCA), dopo l'Outliers Elimination.}
 \label{fig:kmeans-cluster-map}
 \end{figure}
 
@@ -355,19 +373,18 @@ La mappa dei cluster riflette la suddivisione geografico-economica dell’Europa
 
 \vspace{1em}\noindent\textbf{2. Regressione}
 
-Il \texttt{Decision Tree Regressor} presenta overfitting evidente (R\textsuperscript{2} train ≃ 0.95 vs test ≃ 0.42). Il pruning riduce parzialmente il problema (R\textsuperscript{2} ≃ 0.48), ma non offre performance sufficienti per scopi previsionali.
+Il \texttt{Decision Tree Regressor} presenta overfitting evidente (R\textsuperscript{2} train ≃ 0.95 vs test ≃ -0.48). Il pruning riduce parzialmente il problema (R\textsuperscript{2} ≃ -0.42), ma non offre performance sufficienti per scopi previsionali.
 
 Al contrario, la \texttt{Random Forest Regressor} ottimizzata ha raggiunto:
 
 \begin{itemize}
-  \item RMSE ≃ 4.2;
-  \item MAE ≃ 3.1;
-  \item R\textsuperscript{2} ≃ 0.65.
+  \item RMSE ≃ 2.5;
+  \item MAE ≃ 1.5;
+  \item R\textsuperscript{2} ≃ 0.07.
 \end{itemize}
 
 Con una varianza spiegata pari al 65\%, l’\textbf{RF\_TUNED rappresenta il miglior compromesso} tra accuratezza e generalizzazione. Confronti puntuali (es. caso Italia 2000–2023) mostrano una buona aderenza tra predetto e reale, ad eccezione degli shock economici come 2008–2009.
 
-\vfill\break
 \vspace{1em}\noindent\textbf{3. Classificazione}
 
 Il modello \texttt{Random Forest Classifier + SMOTE} si è rivelato il più efficace, con:
@@ -401,7 +418,7 @@ I modelli hanno evidenziato un buon equilibrio tra interpretabilità, accuratezz
 
 \textbf{In sintesi}, il modello \texttt{Random Forest}, sia in regressione che classificazione, rappresenta la scelta più solida per applicazioni operative, mentre il clustering fornisce insight geografico-economici altamente interpretabili.
 
-\section*{\Large \textbf{Metodologie Non Utilizzate}
+\section*{\Large \textbf{Metodologie Non Utilizzate}}
 
 Durante la fase di progettazione del workflow analitico, sono state considerate numerose metodologie alternative per la modellazione, la previsione e il clustering dei dati. Tuttavia, alcune di esse non sono state implementate nella versione finale del progetto per motivi legati a performance, interpretabilità, complessità computazionale o compatibilità con i dati a disposizione. Di seguito si riassumono le principali metodologie scartate, con una breve giustificazione.
 
@@ -455,7 +472,7 @@ Nel nostro caso, però:
     \item L’approccio basato su PCA seguito da K-Means si è rivelato più semplice da interpretare, visualizzare e spiegare in contesti pratici.
 \end{itemize}
 
-\vspace{1em}\noindent\textbf{Discussione dei Risultati}
+\section*{\Large \textbf{Discussione dei Risultati}}
 
 La pipeline proposta ha affrontato in modo integrato le sfide dell’analisi temporale e spaziale dei costi di produzione edilizia nei paesi UE, bilanciando accuratezza, robustezza e interpretabilità. In questa sezione si analizzano in maniera critica le principali scelte metodologiche effettuate, evidenziandone punti di forza, limiti e implicazioni operative.
 
@@ -466,6 +483,14 @@ La mappatura manuale degli aggregati statistici (EA19, EA20, EU27\_2020) ha gara
 \vspace{1em}\noindent\textbf{Imputazione e Standardizzazione}
 
 Il riempimento con la media su riga ha consentito una riduzione rapida dei valori mancanti, specialmente nella tabella pivot trasposta. Pur introducendo un potenziale bias nei paesi meno rappresentati, questa strategia si è rivelata la più pragmatica, date le limitate fonti complementari disponibili.
+Lo stesso vale per l'Outlier Elimination, dimostrandosi fondamentale per la regressione e migliorando le classi meno frequenti nella classificazione.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{Box_Plot.png}
+\caption{Box plot della distribuzione della feature \texttt{pct\_change\_3} per i maggiori paesi Europei (Germania, Spagna, Francia, Italia e Polonia): evidenzia la variabilità dei costi di costruzione a 3 anni e la presenza di outlier (nonostante l'eliminazione).}
+\label{fig:box-plot}
+\end{figure}
 
 \vspace{1em}\noindent\textbf{Clustering}
 
@@ -473,14 +498,13 @@ Il metodo \texttt{KMeans} ha evidenziato la presenza di cluster interpretabili e
 
 \vspace{1em}\noindent\textbf{Modelli di Regressione}
 
-Il modello \texttt{Random Forest Regressor}, opportunamente ottimizzato, ha restituito prestazioni soddisfacenti (RMSE = 4.2, MAE = 3.1, $R^2 = 0.65$). Ciò suggerisce che il 35\% circa della variabilità dei costi annuali rimane non spiegata, lasciando spazio per futuri miglioramenti, quali:
+Il modello \texttt{Random Forest Regressor}, opportunamente ottimizzato, ha restituito prestazioni soddisfacenti (RMSE = 2.5, MAE = 1.5, $R^2 = 0.07$). Ciò suggerisce che il 35\% circa della variabilità dei costi annuali rimane non spiegata, lasciando spazio per futuri miglioramenti, quali:
 
 \begin{itemize} \item integrazione di indicatori macroeconomici esterni (PIL, inflazione, prezzi materiali); \item introduzione di modelli multivariati (es. \texttt{XGBoost}, \texttt{LightGBM}, \texttt{Prophet}) per cogliere dinamiche non lineari. \end{itemize}
 
-\newpage
 \vspace{1em}\noindent\textbf{Modelli di Classificazione}
 
-La combinazione \texttt{Random Forest + SMOTE} si è dimostrata particolarmente efficace nella gestione dello sbilanciamento tra classi di variazione ("aumento"/"diminuzione"), ottenendo F1-score pari a circa 0.61. Tuttavia, la soglia predefinita di $\pm$15\% è arbitraria e la sua modifica a valori come $\pm$10\% o $\pm$20\% potrebbe alterare sensibilmente le performance del modello e la distribuzione delle etichette.
+La combinazione \texttt{Random Forest + SMOTE} si è dimostrata particolarmente efficace nella gestione dello sbilanciamento tra classi di variazione ("aumento" e "diminuzione"), ottenendo F1-score weighted pari a circa 0.78. Tuttavia, la soglia predefinita di $\pm$15\% è arbitraria e la sua modifica a valori come $\pm$10\% o $\pm$20\% potrebbe alterare sensibilmente le performance del modello e la distribuzione delle etichette.
 
 \vspace{1em}\noindent\textbf{Importanza delle Feature}
 
@@ -494,13 +518,22 @@ L’approccio presenta alcune limitazioni strutturali: \begin{itemize} \item I d
 
 Questo studio ha dimostrato come l'integrazione di tecniche di machine learning classiche, abbinate a un rigoroso preprocessing e a un’attenta ingegnerizzazione delle feature, consenta di ottenere risultati significativi nell’analisi predittiva e descrittiva dei costi di produzione edilizia nei paesi europei.
 
-In fase di clustering, l’algoritmo \texttt{KMeans} ha evidenziato la presenza di quattro gruppi coerenti con le dinamiche economiche regionali, supportati da un coefficiente di silhouette pari a 0.58, indicativo di una buona separazione. Al contrario, l’approccio \texttt{DBSCAN} ha mostrato prestazioni meno efficaci, suggerendo l’esplorazione futura di metriche temporali alternative come \texttt{DTW} o approcci basati su autoencoder per serie storiche.
+In fase di clustering, l’algoritmo \texttt{KMeans} ha evidenziato la presenza di due gruppi coerenti con le dinamiche economiche regionali, supportati da un coefficiente di silhouette pari a 0.53, indicativo di una decente ma migliorabile separazione. Al contrario, l’approccio \texttt{DBSCAN} ha mostrato prestazioni meno efficaci, suggerendo l’esplorazione futura di metriche temporali alternative come \texttt{DTW} o approcci basati su autoencoder per serie storiche.
 
-Dal punto di vista predittivo, il modello \texttt{Random Forest Regressor} ottimizzato ha fornito le migliori prestazioni in termini di accuratezza (RMSE = 4.2, MAE = 3.1, $R^2 = 0.65$), dimostrando capacità di generalizzazione utili per supportare scenari decisionali legati alla stima prospettica dei costi, con un errore medio contenuto (3–4 punti percentuali).
+Dal punto di vista predittivo, il modello \texttt{Random Forest Regressor} ottimizzato ha fornito le migliori prestazioni in termini di accuratezza (RMSE = 2.5, MAE = 1.5, $R^2 = 0.07$), dimostrando capacità di generalizzazione utili per supportare scenari decisionali legati alla stima prospettica dei costi, con un errore medio contenuto (3–4 punti percentuali).
 
-Per quanto riguarda la classificazione, l’integrazione della \texttt{Random Forest} con tecniche di bilanciamento come \texttt{SMOTE} ha permesso di gestire efficacemente lo sbilanciamento tra le classi, raggiungendo valori di F1-weighted pari a 0.61 e un'accuratezza bilanciata del 60\%. Tra le feature più influenti si segnalano \texttt{pct\_change\_3} e \texttt{rolling\_std\_3}, entrambe derivate da trasformazioni temporali locali.
+Per quanto riguarda la classificazione, l’integrazione della \texttt{Random Forest} con tecniche di bilanciamento come \texttt{SMOTE} ha permesso di gestire efficacemente lo sbilanciamento tra le classi, raggiungendo valori di F1-weighted pari a 0.78 e un'accuratezza bilanciata del 60\%. Tra le feature più influenti si segnalano \texttt{pct\_change\_3} e \texttt{rolling\_std\_3}, entrambe derivate da trasformazioni temporali locali.
 
-Inoltre, la progettazione di una pipeline modulare — che copre l’intero ciclo di vita analitico (dall’acquisizione del dataset alla modellazione, dal feature engineering all’esportazione) — consente una schedulazione automatica degli aggiornamenti grazie all’uso combinato di Microsoft Task Scheduler e versioning dei dataset, garantendo riproducibilità e tracciabilità operativa.
+Per valutare l’efficacia del modello di regressione sviluppato, abbiamo confrontato i valori predetti con quelli osservati su un caso studio concreto: l’Italia. Il modello è stato addestrato sui dati fino al 2016 e ha previsto i costi degli anni successivi sulla base delle feature ingegnerizzate. Nel grafico seguente è possibile osservare la sovrapposizione tra l’andamento reale dei costi di costruzione e le previsioni fornite dal modello.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{Proof_of_Concepts(IT).png}
+\caption{Confronto tra l’indice reale dei costi di costruzione shiftato di un anno (\textit{target\_cost}) e il valore predetto (\textit{pred\_cost}) in Italia. Il modello di regressione prevede l’evoluzione dei costi con un anno di anticipo, e quindi \textit{OBS\_VALUE} è stato shiftato di un aanno in \textit{target\_cost} mostrando coerenza nella tendenza generale.}
+\label{fig:proof-of-concepts}
+\end{figure}
+
+Infine, la progettazione di una pipeline modulare — che copre l’intero ciclo di vita analitico (dall’acquisizione del dataset alla modellazione, dal feature engineering all’esportazione) — consente una schedulazione automatica degli aggiornamenti grazie all’uso combinato di Microsoft Task Scheduler e versioning dei dataset, garantendo riproducibilità e tracciabilità operativa.
 
 \vspace{0.5em}
 \noindent\textbf{Prospettive Future:}
