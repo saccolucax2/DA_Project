@@ -76,7 +76,7 @@ def ingest_and_expand(path_csv: str) -> pd.DataFrame:
 
     expanded = []
     for _, row in df_agg.iterrows():
-        code = row["geo"]
+        code = str(row["geo"])
         for iso in mapping[code]:
             if (iso, row["TIME_PERIOD"]) in existing_keys:
                 continue
@@ -162,13 +162,14 @@ def clustering_kmeans(scaled, n_components=3, k_max=10):
 
 def clustering_dbscan(scaled, eps=4.5, min_samples=4):
     db = DBSCAN(eps=eps, min_samples=min_samples).fit(scaled)
-    labels = db.labels_
-    mask = labels != -1
-    if mask.sum() > 1:
-        score = silhouette_score(scaled[mask], labels[mask])
+    labels = np.array(db.labels_)
+    mask_array = labels != -1
+    count_inliers = int(np.count_nonzero(mask_array))
+    if count_inliers > 1:
+        sc = silhouette_score(scaled[mask_array], labels[mask_array])
     else:
-        score = None
-    return labels, score
+        sc = None
+    return labels, sc
 
 
 # -----------------------------------------------------------------------------
