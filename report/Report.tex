@@ -536,6 +536,45 @@ Per valutare l’efficacia del modello di regressione sviluppato, abbiamo confro
 Infine, la progettazione di una pipeline modulare — che copre l’intero ciclo di vita analitico (dall’acquisizione del dataset alla modellazione, dal feature engineering all’esportazione) — consente una schedulazione automatica degli aggiornamenti grazie all’uso combinato di Microsoft Task Scheduler e versioning dei dataset, garantendo riproducibilità e tracciabilità operativa.
 
 \vspace{0.5em}
+\noindent\textbf{Bootstrap Analysis}
+
+Il \textbf{bootstrap} è una metodologia di ri-campionamento che consiste nel creare tanti sottoinsiemi (detti \emph{bootstrap samples}) estratti con ripetizione dal campione originale.  
+Su ciascun sottoinsieme si riallenano i modelli, permettendo di ottenere una distribuzione empirica delle metriche (ad esempio RMSE, F1) e di calcolare intervalli di confidenza senza ipotesi parametriche sulla distribuzione dei dati.
+
+\vfill\null
+Abbiamo effettuato 200 iterazioni di bootstrap sul training set:
+\begin{enumerate}
+  \item Ogni iterazione campiona con ripetizione il training set originale.
+  \item Si riallena il modello (Random Forest) sul campione bootstrap.
+  \item Si valuta la metrica corrispondente sul test set fisso.
+\end{enumerate}
+
+\noindent I risultati sono i seguenti:
+\begin{itemize}
+  \item \textbf{Random Forest (Regressione)}: RMSE 95\,\% CI = [2.44, 2.73]
+  \item \textbf{Random Forest (Classificazione)}: F1-weighted 95\,\% CI = [0.672, 0.765]
+\end{itemize}
+
+L’intervallo ristretto per la regressione denota un’elevata stabilità del modello, mentre la più ampia variabilità nella classificazione riflette la maggiore incertezza derivante dalle classi meno rappresentate.
+
+Di seguito presentiamo le distribuzioni empiriche delle metriche ottenute tramite bootstrap per i nostri modelli di regressione e classificazione. Gli istogrammi mostrano la variabilità dei valori di RMSE (per la Random Forest di regressione) e di F1‐weighted (per la Random Forest di classificazione), permettendo di visualizzare la stabilità e l’incertezza delle stime.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{RMSE_bootstrap.png}
+\caption{Istogramma della distribuzione delle RMSE ottenute in 200 iterazioni di bootstrap per la Random Forest di regressione. L’intervallo di confidenza al 95\,\% è [2.44, 2.73].}
+\label{fig:rmse-bootstrap}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{F1_bootstrap.png}
+\caption{Istogramma della distribuzione delle F1‐weighted ottenute in 200 iterazioni di bootstrap per la Random Forest di classificazione. L’intervallo di confidenza al 95\,\% è [0.672, 0.765].}
+\label{fig:f1-bootstrap}
+\end{figure}
+
+\newpage
+\vspace{0.5em}
 \noindent\textbf{Prospettive Future:}
 \begin{itemize}
   \item Arricchimento del dataset con indicatori esogeni (prezzi dell'energia, indici macroeconomici, materie prime) per migliorare la capacità esplicativa del modello di regressione.
